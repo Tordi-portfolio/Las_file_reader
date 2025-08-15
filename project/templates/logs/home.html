@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LAS Viewer — Upload</title>
+  <link rel="stylesheet" href="/static/logs/las.css">
+</head>
+<body class="lv-body">
+  <div class="lv-container">
+    <h1 class="lv-title">LAS Viewer</h1>
+    <p class="lv-subtitle">Upload a <code>.las</code> file and explore well logs.</p>
+
+    <form class="lv-form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="lv-form-row">
+        {{ form.file }}
+      </div>
+      <button class="lv-btn" type="submit">Upload &amp; Open</button>
+    </form>
+
+    <div class="lv-note">
+      <p>No LAS file handy? Grab any sample <em>.las</em> and upload — we’ll parse WELL info, curves, and let you plot instantly.</p>
+    </div>
+  </div>
+</body>
+</html>

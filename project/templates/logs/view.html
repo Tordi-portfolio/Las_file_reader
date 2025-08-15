@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LAS Viewer — {{ obj.file.name }}</title>
+  <link rel="stylesheet" href="/static/logs/las.css">
+  <!-- Plotly (CDN) for quick interactive charts -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body class="lv-body">
+  <header class="lv-topbar">
+    <div class="lv-topbar-inner">
+      <a class="lv-logo" href="/">LAS Viewer</a>
+      <div class="lv-file-name">{{ obj.file.name|escape }}</div>
+    </div>
+  </header>
+
+  <main class="lv-main">
+    <section class="lv-card">
+      <h2 class="lv-card-title">WELL Information</h2>
+      <div class="lv-grid">
+        {% for k, v in well_info.items %}
+        <div class="lv-kv">
+          <div class="lv-k">{{ k }}</div>
+          <div class="lv-v">{{ v }}</div>
+        </div>
+        {% empty %}
+        <p class="lv-muted">No WELL header found.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="lv-card">
+      <h2 class="lv-card-title">Parameters</h2>
+      <div class="lv-grid">
+        {% for k, v in params.items %}
+        <div class="lv-kv">
+          <div class="lv-k">{{ k }}</div>
+          <div class="lv-v">{{ v }}</div>
+        </div>
+        {% empty %}
+        <p class="lv-muted">No parameters section present.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="lv-card">
+      <h2 class="lv-card-title">Curves</h2>
+      <div class="lv-curves">
+        <div class="lv-curve-list">
+          <div class="lv-curve-list-head">
+            <div>Mnemonic</div><div>Unit</div><div>Description</div><div>Min</div><div>Max</div>
+          </div>
+          {% for c in curves %}
+          <button class="lv-curve-row" data-mnemonic="{{ c.mnemonic }}">
+            <div class="lv-mn">{{ c.mnemonic }}</div>
+            <div>{{ c.unit }}</div>
+            <div class="lv-descr">{{ c.descr }}</div>
+            <div>{{ c.min }}</div>
+            <div>{{ c.max }}</div>
+          </button>
+          {% endfor %}
+        </div>
+
+        <div class="lv-plot">
+          <div id="lv-plot-el" class="lv-plot-el"></div>
+          <div class="lv-plot-hint">Click a curve at left to plot vs {{ index_label }}.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const plotEl = document.getElementById('lv-plot-el');
+    const rows = document.querySelectorAll('.lv-curve-row');
+    const pk = "{{ obj.pk }}";
+    const indexLabelFallback = "{{ index_label|escapejs }}";
+
+    async function loadAndPlot(mnemonic) {
+      const res = await fetch(`/api/curve/${pk}/${mnemonic}/`);
+      if (!res.ok) {
+        alert("Failed to load curve data.");
+        return;
+      }
+      const data = await res.json();
+      const x = data.x;
+      const y = data.y;
+      const indexLabel = data.index_label || indexLabelFallback;
+
+      const trace = {
+        x: y,  // conventional well-log plot: curve horizontally
+        y: x,
+        mode: 'lines',
+        type: 'scatter',
+        hovertemplate: `${mnemonic}: %{x}<br>${indexLabel}: %{y}<extra></extra>`
+      };
+
+      const layout = {
+        margin: {l: 60, r: 20, t: 20, b: 40},
+        xaxis: {title: mnemonic},
+        yaxis: {title: indexLabel, autorange: 'reversed'},  // depth downwards
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: {color: '#e5e7eb'}
+      };
+
+      Plotly.newPlot(plotEl, [trace], layout, {displayModeBar: true, responsive: true});
+    }
+
+    rows.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mn = btn.getAttribute('data-mnemonic');
+        rows.forEach(b => b.classList.remove('lv-active'));
+        btn.classList.add('lv-active');
+        loadAndPlot(mn);
+      });
+    });
+  </script>
+</body>
+</html>
