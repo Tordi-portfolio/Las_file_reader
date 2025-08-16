@@ -6,6 +6,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from .forms import UploadLASForm
 from .models import UploadedLAS
+from django.contrib import messages
+
+def index(request):
+    return render(request, 'logs/index.html')
 
 
 def _read_las_from_storage(file_field):
@@ -26,6 +30,7 @@ def home(request):
         form = UploadLASForm(request.POST, request.FILES)
         if form.is_valid():
             obj = form.save()
+            messages.success(request, 'You can now view your las file datas')
             return redirect("logs:view_las", pk=obj.pk)
     return render(request, "logs/home.html", {"form": form})
 

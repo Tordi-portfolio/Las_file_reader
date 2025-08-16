@@ -1,0 +1,122 @@
+{% if messages %}
+  <div class="messages-container">
+    {% for message in messages %}
+      <div class="msg-box {{ message.tags }}">
+        <span class="msg-text">{{ message }}</span>
+        <button class="msg-close" onclick="this.parentElement.style.display='none';">&times;</button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+<style>
+    /* Message container */
+/* Container */
+.messages-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: auto;
+  max-width: 400px;
+  z-index: 1000;
+}
+
+/* Base style for all messages */
+.msg-box {
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Success */
+.msg-box.success {
+  background-color: #28a745;
+}
+
+/* Error */
+.msg-box.error {
+  background-color: #dc3545;
+}
+
+/* Warning */
+.msg-box.warning {
+  background-color: #ffc107;
+  color: #333;
+}
+
+/* Info */
+.msg-box.info {
+  background-color: #17a2b8;
+}
+
+/* Close button */
+.msg-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade out animation */
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+
+footer {
+      background: #1a1a1a;
+      color: #aaa;
+      text-align: center;
+      padding: 40px 20px;
+      margin-top: 60px;
+      border-top: 1px solid #333;
+    }
+    footer strong {
+      color: #fff;
+    }
+
+    p {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+    }
+
+</style>
+
+{% block content %}
+
+{% endblock %}
+
+<footer>
+  <p>
+    <strong>Author:</strong> Gbarabe Tordi Joseph<br>
+    Year 4 Student, Petroleum Engineering Department<br>
+    University of Port Harcourt (UNIPORT)
+  </p>
+</footer>
+
+<script>
+  // Auto-hide after 5 seconds
+  setTimeout(function() {
+    document.querySelectorAll('.msg-box').forEach(function(msg){
+      msg.style.animation = "fadeOut 0.5s forwards";
+      setTimeout(() => msg.remove(), 500);
+    });
+  }, 5000);
+</script>
